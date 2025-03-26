@@ -11,7 +11,7 @@ df['genres'] = df['genres'].str.split('|')
 df_exploded = df.explode('genres') # Create a new row for each genre
 
 # Streamlit app
-st.title("Movie Genre Explorer")
+st.title(" 🎬  Movie Genre Explorer")
 
 # Genre selection
 all_genres = df_exploded['genres'].unique()
