@@ -6,43 +6,27 @@ import seaborn as sns
 # Load the dataset
 df = pd.read_csv("movies.csv")
 
-# Clean genre Column
-# df['genre'] = df['genre'].str.split(',').str[0]
-df['genre'] = df['genre'].str.split(',')
-
-# Clean gender column
-df['gender'] = df['gender'].str.capitalize()  # Standardize capitalization
+# Clean genre Column and split the genres.  Important step.
+df['genres'] = df['genres'].str.split('|')
+df_exploded = df.explode('genres') # Create a new row for each genre
 
 # Streamlit app
-st.title("Movie Gender Explorer")
+st.title("Movie Genre Explorer")
 
-# Gender selection
-genders = df["gender"].unique()
-selected_gender = st.selectbox("Select a Gender", genders)
+# Genre selection
+all_genres = df_exploded['genres'].unique()
+selected_genre = st.selectbox("Select a Genre", all_genres)
 
-# Filter movies by gender
-gender_movies = df[df["gender"] == selected_gender]
+# Filter movies by genre
+genre_movies = df_exploded[df_exploded["genres"] == selected_genre]
 
 # Display movies table
-st.subheader(f"Movies with {selected_gender} Main Character(s)")
-st.dataframe(gender_movies)
-
-# Plot movie ratings
-st.subheader(f"Ratings of Movies with {selected_gender} Main Character(s)")
-plt.figure(figsize=(10, 6))
-sns.barplot(x="title", y="rating", data=gender_movies)
-plt.xticks(rotation=90)
-st.pyplot(plt)
-
-# Plot release year vs rating
-st.subheader(f"Release Year vs Rating of Movies with {selected_gender} Main Character(s)")
-plt.figure(figsize=(10, 6))
-sns.scatterplot(x="release_year", y="rating", data=gender_movies)
-st.pyplot(plt)
+st.subheader(f"Movies in {selected_genre} Genre")
+st.dataframe(genre_movies)
 
 # Plot genre distribution
-st.subheader(f"Genre Distribution of Movies with {selected_gender} Main Character(s)")
-genre_counts = gender_movies['genre'].value_counts()
+st.subheader("Distribution of Genres")
+genre_counts = df_exploded['genres'].value_counts()  # Use the exploded DataFrame
 plt.figure(figsize=(10, 6))
 sns.barplot(x=genre_counts.index, y=genre_counts.values)
 plt.xticks(rotation=45, ha="right")
